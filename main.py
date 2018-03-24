@@ -1,4 +1,6 @@
 import sys
+import argparse
+# import numpy
 import random
 
 
@@ -11,6 +13,34 @@ class Card:
             self.rank = ''
             self.suit = 'X'
 
+
+    def points(self):
+        if self.rank == 'A':
+            return 11
+        elif self.rank == '7':
+            return 10
+        elif self.rank == 'K':
+            return 4
+        elif self.rank == 'J':
+            return 3
+        elif self.rank == 'Q':
+            return 2
+        return 0
+
+    def ranking(self):
+        if self.suit == 'X':
+            return 0
+        elif self.rank == 'A':
+            return 11
+        elif self.rank == '7':
+            return 10
+        elif self.rank == 'K':
+            return 9
+        elif self.rank == 'J':
+            return 8
+        elif self.rank == 'Q':
+            return 7
+        return int(self.rank)
 
 class Hand:
     def __init__(self, cards_line):
@@ -48,11 +78,27 @@ class Input:
         self.points = [int(point_data[0]), int(point_data[1])]
 
 
+def card_ranking_on_trick(card, input):
+    ranking = card.ranking()
+    if input.current_suit == card.suit:
+        ranking += 10
+    return ranking
+
+
 def play(input):
-    # introduz o teu codigo aqui
+    filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
+    if len(filtered_hands) == 0:
+        return random.choice(input.hand.cards)
+    return random.choice(filtered_hands)
 
 
 if __name__ == '__main__':
-    input = Input(sys.stdin.readlines())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
+                        default=sys.stdin)
+
+    args = parser.parse_args()
+
+    input = Input(args.infile.readlines())
     card = play(input)
     print(card.rank + card.suit)
