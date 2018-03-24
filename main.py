@@ -84,8 +84,24 @@ def card_ranking_on_trick(card, input):
         ranking += 10
     return ranking
 
+# FIXME: not used yet
+def can_cut(hand: Hand, current_suit: str, trump_suit: str) -> bool:
+    for card in hand.cards:
+        if card.suit == current_suit:
+            return False
+    for card in hand.cards:
+        if card.suit == trump_suit:
+            return True
+    return False
 
-def play(input):
+
+def play(input: Input) -> Card:
+    # first play: play an Ace if we have one
+    if input.current_suit == 'X':
+        for card in input.hand.cards:
+            if card.rank == 'A': # TODO: and card.suit != input.trump_card.suit
+                return card
+
     filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
     if len(filtered_hands) == 0:
         return random.choice(input.hand.cards)
