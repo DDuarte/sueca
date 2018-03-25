@@ -78,13 +78,12 @@ class Input:
         self.points = [int(point_data[0]), int(point_data[1])]
 
 
-def card_ranking_on_trick(card, input):
+def card_ranking_on_trick(card: Card, input: Input) -> int:
     ranking = card.ranking()
     if input.current_suit == card.suit:
         ranking += 10
     return ranking
 
-# FIXME: not used yet
 def can_cut(hand: Hand, current_suit: str, trump_suit: str) -> bool:
     for card in hand.cards:
         if card.suit == current_suit:
@@ -101,8 +100,10 @@ def play(input: Input) -> Card:
         for card in input.hand.cards:
             if card.rank == 'A': # TODO: and card.suit != input.trump_card.suit
                 return card
-
-    filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
+    if can_cut(input.hand,input.current_suit,input.trump_card.suit) and input.current_suit != 'X':
+        filtered_hands = list(filter(lambda card: card.suit == input.trump_card.suit, input.hand.cards))
+    else:
+        filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
     if len(filtered_hands) == 0:
         return random.choice(input.hand.cards)
     return random.choice(filtered_hands)
