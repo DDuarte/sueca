@@ -102,13 +102,27 @@ def play(input: Input) -> Card:
         for card in input.hand.cards:
             if card.rank == 'A' and card.suit != input.trump_card.suit:
                 return card
+    
     if can_cut(input.hand,input.current_suit,input.trump_card.suit) and input.current_suit != 'X':
         filtered_hands = list(filter(lambda card: card.suit == input.trump_card.suit, input.hand.cards))
     else:
         filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
-    if len(filtered_hands) == 0:
+    
+    can_assist = False if len(filtered_hands) == 0 else True
+    if not can_assist:
         return min(input.hand.cards,key=attrgetter('ranking_value'))
-    return max(filtered_hands,key=attrgetter('ranking_value'))
+
+    max_playable_card = max(filtered_hands,key=attrgetter('ranking_value'))
+    if max_playable_card.rank == 'A':
+        return max_playable_card
+
+    flat_last_tricks_cards = [previous_card for previous_trick in input.previous_tricks for previous_card in previous_trick]
+    filtered_last_tricks_cards = list(filter(lambda card: card.suit == input.current_suit and card.ranking_value > max_playable_card.ranking_value, flat_last_tricks_cards))
+    
+    if len(list(range(max_playable_card.ranking_value,12))) == len(filtered_last_tricks_cards):
+        return max_playable_card
+    else:
+        return min(filtered_hands,key=attrgetter('ranking_value'))
 
 
 if __name__ == '__main__':
