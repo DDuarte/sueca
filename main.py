@@ -2,6 +2,7 @@ import sys
 import argparse
 # import numpy
 import random
+from operator import attrgetter
 
 
 class Card:
@@ -12,7 +13,7 @@ class Card:
         else:
             self.rank = ''
             self.suit = 'X'
-
+        self.ranking_value = self.ranking()
 
     def points(self):
         if self.rank == 'A':
@@ -27,7 +28,7 @@ class Card:
             return 2
         return 0
 
-    def ranking(self):
+    def ranking(self) -> int:
         if self.suit == 'X':
             return 0
         elif self.rank == 'A':
@@ -41,6 +42,7 @@ class Card:
         elif self.rank == 'Q':
             return 7
         return int(self.rank)
+
 
 class Hand:
     def __init__(self, cards_line):
@@ -98,15 +100,15 @@ def play(input: Input) -> Card:
     # first play: play an Ace if we have one
     if input.current_suit == 'X':
         for card in input.hand.cards:
-            if card.rank == 'A': # TODO: and card.suit != input.trump_card.suit
+            if card.rank == 'A' and card.suit != input.trump_card.suit:
                 return card
     if can_cut(input.hand,input.current_suit,input.trump_card.suit) and input.current_suit != 'X':
         filtered_hands = list(filter(lambda card: card.suit == input.trump_card.suit, input.hand.cards))
     else:
         filtered_hands = list(filter(lambda card: card.suit == input.current_suit, input.hand.cards))
     if len(filtered_hands) == 0:
-        return random.choice(input.hand.cards)
-    return random.choice(filtered_hands)
+        return min(input.hand.cards,key=attrgetter('ranking_value'))
+    return max(filtered_hands,key=attrgetter('ranking_value'))
 
 
 if __name__ == '__main__':
