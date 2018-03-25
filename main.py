@@ -113,6 +113,7 @@ def play(input: Input) -> Card:
         return min(input.hand.cards,key=attrgetter('ranking_value'))
 
     max_playable_card = max(filtered_hands,key=attrgetter('ranking_value'))
+    min_playable_card = min(filtered_hands,key=attrgetter('ranking_value'))
     if max_playable_card.rank == 'A':
         return max_playable_card
 
@@ -131,9 +132,17 @@ def play(input: Input) -> Card:
     filtered_last_tricks_cards = list(filter(lambda card: card.suit == input.current_suit and card.ranking_value > max_playable_card.ranking_value, flat_last_tricks_cards))
     
     if len(list(range(max_playable_card.ranking_value,12))) == len(filtered_last_tricks_cards):
-        return max_playable_card
+        if (
+            (input.player_number == 0 or input.player_number == 2) and (card_ranking_on_trick(input.current_trick.cards[1],input) < max_playable_card.ranking_value and card_ranking_on_trick(input.current_trick.cards[3],input) < max_playable_card.ranking_value) 
+            or (input.player_number == 1 or input.player_number == 3) and (card_ranking_on_trick(input.current_trick.cards[0],input) < max_playable_card.ranking_value and card_ranking_on_trick(input.current_trick.cards[2],input) < max_playable_card.ranking_value)
+        ):
+            return max_playable_card
+        else:
+            if can_cut:
+                return min(input.hand.cards,key=attrgetter('ranking_value'))
+            return min_playable_card
     else:
-        return min(filtered_hands,key=attrgetter('ranking_value'))
+        return min_playable_card
 
 
 if __name__ == '__main__':
