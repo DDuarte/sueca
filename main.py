@@ -116,7 +116,18 @@ def play(input: Input) -> Card:
     if max_playable_card.rank == 'A':
         return max_playable_card
 
-    flat_last_tricks_cards = [previous_card for previous_trick in input.previous_tricks for previous_card in previous_trick]
+    flat_last_tricks_cards = []
+    for previous_trick in input.previous_tricks:
+        for previous_card in previous_trick.cards:
+            flat_last_tricks_cards.append(previous_card)
+
+    if input.player_number == 0 or input.player_number == 2:
+        flat_last_tricks_cards.append(input.current_trick.cards[0])
+        flat_last_tricks_cards.append(input.current_trick.cards[2])
+    else:
+        flat_last_tricks_cards.append(input.current_trick.cards[1])
+        flat_last_tricks_cards.append(input.current_trick.cards[3])
+
     filtered_last_tricks_cards = list(filter(lambda card: card.suit == input.current_suit and card.ranking_value > max_playable_card.ranking_value, flat_last_tricks_cards))
     
     if len(list(range(max_playable_card.ranking_value,12))) == len(filtered_last_tricks_cards):
